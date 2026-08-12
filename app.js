@@ -114,6 +114,7 @@
   function generateAppearanceLines(result) {
     const profile = data.practicalProfiles[result.cardNumber].appearance;
     const style = data.practicalStyles[result.cardNumber][result.orientation];
+    const details = data.characterDetails[result.cardNumber][result.orientation];
     const featurePool = result.orientation === "upright"
       ? profile.uprightFeatures
       : profile.reversedFeatures;
@@ -123,18 +124,47 @@
       `体格：${pickOne(profile.builds)}`,
       `服装：${style.clothing}`,
       `髪・身だしなみ：${style.grooming}`,
-      `外見上の特徴：${pickOne(featurePool)}`
+      `外見上の特徴：${pickOne(featurePool)}`,
+      `傷跡など：${details.scar}`
     ];
   }
 
   function generateOccupationLines(result, readingPool) {
     const jobPool = data.practicalProfiles[result.cardNumber].occupations[result.orientation];
+    const details = data.characterDetails[result.cardNumber][result.orientation];
 
     return [
       `職業・立場：${pickOne(jobPool)}。`,
+      `経歴：${details.background}`,
       `仕事ぶり：${readingPool[1]}`,
       labelSentence("生活リズム", readingPool[2], ["生活リズムは", "生活は"]),
-      `経済状況：${readingPool[3]}`
+      `収入・資産：${details.finance}`
+    ];
+  }
+
+  function generatePersonalityLines(result, readingPool, count) {
+    const details = data.characterDetails[result.cardNumber][result.orientation];
+    return [
+      `好きなもの：${sample(details.likes, 2).join("、")}。`,
+      `嫌いなもの：${sample(details.dislikes, 2).join("、")}。`,
+      ...sample(readingPool, count - 2)
+    ];
+  }
+
+  function generateRelationshipLines(result, readingPool, count) {
+    const details = data.characterDetails[result.cardNumber][result.orientation];
+    return [
+      `家族＆友人：${details.connections}`,
+      ...sample(readingPool, count - 1)
+    ];
+  }
+
+  function generateWoundLines(result, readingPool, count) {
+    const details = data.characterDetails[result.cardNumber][result.orientation];
+    return [
+      `負傷・健康：${details.injury}`,
+      ...sample(readingPool, count - 2),
+      findContradictionLine()
     ];
   }
 
@@ -148,12 +178,14 @@
       lines = generateAppearanceLines(result);
     } else if (result.categoryId === "occupation") {
       lines = generateOccupationLines(result, readingPool);
+    } else if (result.categoryId === "personality") {
+      lines = generatePersonalityLines(result, readingPool, category.pick);
+    } else if (result.categoryId === "relationships") {
+      lines = generateRelationshipLines(result, readingPool, category.pick);
+    } else if (result.categoryId === "wounds") {
+      lines = generateWoundLines(result, readingPool, category.pick);
     } else {
       lines = sample(readingPool, category.pick);
-    }
-
-    if (result.categoryId === "wounds") {
-      lines.push(findContradictionLine());
     }
 
     return lines;
