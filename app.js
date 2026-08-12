@@ -21,6 +21,7 @@
   };
 
   let spreadState = [];
+  let spreadVersion = 0;
   let toastTimer = 0;
 
   function randomInteger(max) {
@@ -124,6 +125,7 @@
     spreadState = data.categories.map((category, index) => (
       createResult(category.id, cardNumbers[index])
     ));
+    spreadVersion += 1;
     generateAllLines();
   }
 
@@ -249,6 +251,7 @@
     const excludedNumbers = spreadState.map((item) => item.cardNumber);
     const [newCardNumber] = drawCardNumbers(1, excludedNumbers);
     spreadState[index] = createResult(categoryId, newCardNumber);
+    spreadVersion += 1;
     spreadState[index].lines = generateLines(spreadState[index]);
     renderSpread();
     showToast(`${getCategory(categoryId).name}を再抽選しました`);
@@ -287,19 +290,25 @@
       const categoryId = spreadState[stateIndex].categoryId;
       spreadState[stateIndex] = createResult(categoryId, newCardNumbers[drawIndex]);
     });
-    generateAllLines();
+    spreadVersion += 1;
+    unlockedIndexes.forEach((stateIndex) => {
+      spreadState[stateIndex].lines = generateLines(spreadState[stateIndex]);
+    });
     renderSpread();
     showToast(`未固定の${unlockedIndexes.length}枚を再抽選しました`);
   }
 
   function revealAll() {
     const articles = [...elements.spread.querySelectorAll(".result-card")];
+    const versionAtStart = spreadVersion;
     let newlyRevealed = 0;
 
     spreadState.forEach((result, index) => {
       if (result.revealed) return;
       newlyRevealed += 1;
-      window.setTimeout(() => revealOne(result.categoryId, articles[index]), (newlyRevealed - 1) * 90);
+      window.setTimeout(() => {
+        if (spreadVersion === versionAtStart) revealOne(result.categoryId, articles[index]);
+      }, (newlyRevealed - 1) * 90);
     });
 
     if (newlyRevealed === 0) {

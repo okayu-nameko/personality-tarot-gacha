@@ -91,6 +91,7 @@ a:focus-visible {
 }
 
 .brand {
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   gap: 12px;
@@ -372,6 +373,7 @@ h1 span {
 
 .lock-button {
   min-width: 70px;
+  min-height: 44px;
   padding: 7px 10px;
   display: inline-flex;
   align-items: center;
