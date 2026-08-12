@@ -101,11 +101,56 @@
     return candidates[randomInteger(candidates.length)];
   }
 
+  function pickOne(items) {
+    return items[randomInteger(items.length)];
+  }
+
+  function labelSentence(label, sentence, removablePrefixes = []) {
+    const prefix = removablePrefixes.find((candidate) => sentence.startsWith(candidate));
+    const content = prefix ? sentence.slice(prefix.length) : sentence;
+    return `${label}：${content}`;
+  }
+
+  function generateAppearanceLines(result) {
+    const profile = data.practicalProfiles[result.cardNumber].appearance;
+    const style = data.practicalStyles[result.cardNumber][result.orientation];
+    const featurePool = result.orientation === "upright"
+      ? profile.uprightFeatures
+      : profile.reversedFeatures;
+
+    return [
+      `年齢感：${pickOne(profile.ages)}`,
+      `体格：${pickOne(profile.builds)}`,
+      `服装：${style.clothing}`,
+      `髪・身だしなみ：${style.grooming}`,
+      `外見上の特徴：${pickOne(featurePool)}`
+    ];
+  }
+
+  function generateOccupationLines(result, readingPool) {
+    const jobPool = data.practicalProfiles[result.cardNumber].occupations[result.orientation];
+
+    return [
+      `職業・立場：${pickOne(jobPool)}。`,
+      `仕事ぶり：${readingPool[1]}`,
+      labelSentence("生活リズム", readingPool[2], ["生活リズムは", "生活は"]),
+      `経済状況：${readingPool[3]}`
+    ];
+  }
+
   function generateLines(result) {
     const category = getCategory(result.categoryId);
     const card = getCard(result.cardNumber);
     const readingPool = card[result.orientation].readings[result.categoryId];
-    const lines = sample(readingPool, category.pick);
+    let lines;
+
+    if (result.categoryId === "appearance") {
+      lines = generateAppearanceLines(result);
+    } else if (result.categoryId === "occupation") {
+      lines = generateOccupationLines(result, readingPool);
+    } else {
+      lines = sample(readingPool, category.pick);
+    }
 
     if (result.categoryId === "wounds") {
       lines.push(findContradictionLine());
