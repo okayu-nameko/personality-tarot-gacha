@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0a14">
+  <meta name="description" content="大アルカナ5枚から、TRPGで演じやすいキャラクターの人格・生活・人間関係・傷を生成するツールです。">
+  <title>人格タロット式キャラクターガチャ</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="data.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="ambient ambient--one" aria-hidden="true"></div>
+  <div class="ambient ambient--two" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="人格タロット式キャラクターガチャ トップへ">
+      <span class="brand__mark" aria-hidden="true">✦</span>
+      <span>PERSONA TAROT</span>
+    </a>
+    <p class="version">Major Arcana / Ver.1</p>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-labelledby="page-title">
+      <p class="eyebrow">TRPG CHARACTER PROMPT</p>
+      <h1 id="page-title">人格タロット式<br><span>キャラクターガチャ</span></h1>
+      <p class="hero__lead">
+        5枚の大アルカナが、外見だけでは見えない<br class="desktop-break">
+        その人の暮らし方、距離感、そして矛盾を映し出します。
+      </p>
+
+      <div class="deck-emblem" aria-hidden="true">
+        <span class="deck-emblem__orbit"></span>
+        <span class="deck-emblem__moon">☾</span>
+        <span class="deck-emblem__spark deck-emblem__spark--one">✦</span>
+        <span class="deck-emblem__spark deck-emblem__spark--two">·</span>
+        <span class="deck-emblem__spark deck-emblem__spark--three">✧</span>
+      </div>
+
+      <button class="draw-button" id="drawButton" type="button">
+        <span aria-hidden="true">✦</span>
+        5枚のカードを引く
+        <span aria-hidden="true">✦</span>
+      </button>
+      <p class="hero__hint">正位置・逆位置を含め、重複なしで5枚引きます</p>
+    </section>
+
+    <section class="reading" id="reading" aria-labelledby="reading-title" hidden>
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">YOUR CHARACTER</p>
+          <h2 id="reading-title">5つの側面をめくる</h2>
+        </div>
+        <p class="section-heading__guide">カードを選ぶと、人物像が明らかになります。</p>
+      </div>
+
+      <div class="spread" id="spread" aria-live="polite"></div>
+
+      <div class="toolbar" aria-label="全体操作">
+        <button class="action-button action-button--primary" id="rerollAllButton" type="button">
+          <span aria-hidden="true">↻</span> 全部再抽選
+        </button>
+        <button class="action-button" id="rerollUnlockedButton" type="button">
+          <span aria-hidden="true">◇</span> 未固定だけ再抽選
+        </button>
+        <button class="action-button" id="revealAllButton" type="button">
+          <span aria-hidden="true">✦</span> すべてめくる
+        </button>
+        <button class="action-button" id="copyButton" type="button">
+          <span aria-hidden="true">▣</span> 結果全文をコピー
+        </button>
+      </div>
+      <p class="toolbar__note">「全部再抽選」は固定を解除します。「未固定だけ再抽選」は固定した結果を残します。</p>
+    </section>
+
+    <section class="how-to" aria-labelledby="how-to-title">
+      <div class="how-to__intro">
+        <p class="eyebrow">HOW TO PLAY</p>
+        <h2 id="how-to-title">偶然から、人物を見つける</h2>
+      </div>
+      <ol class="steps">
+        <li><span>01</span><div><strong>カードを引く</strong><p>5つのカテゴリへ、大アルカナを1枚ずつ配ります。</p></div></li>
+        <li><span>02</span><div><strong>気になる順にめくる</strong><p>同じカードでも、置かれた場所によって意味が変わります。</p></div></li>
+        <li><span>03</span><div><strong>好きな矛盾を残す</strong><p>固定と再抽選を使い、演じたくなる人物像へ育ててください。</p></div></li>
+      </ol>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>この結果はキャラクター作成のヒントです。気に入らない設定は、自由に無視・変更してください。</p>
+    <p class="site-footer__sub">タロットは人物を決めるものではなく、あなたの発想をひらくための道具です。</p>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <template id="cardTemplate">
+    <article class="result-card">
+      <div class="result-card__heading">
+        <div>
+          <p class="result-card__index"></p>
+          <h3 class="result-card__category"></h3>
+        </div>
+        <button class="lock-button" type="button" aria-pressed="false">
+          <span class="lock-button__icon" aria-hidden="true">◇</span>
+          <span class="lock-button__label">固定</span>
+        </button>
+      </div>
+
+      <button class="tarot" type="button">
+        <span class="tarot__inner">
+          <span class="tarot__back" aria-hidden="true">
+            <span class="tarot__back-frame">
+              <span class="tarot__stars">✦　·　✧</span>
+              <span class="tarot__sigil">☾</span>
+              <span class="tarot__stars tarot__stars--bottom">✧　·　✦</span>
+            </span>
+          </span>
+          <span class="tarot__front">
+            <span class="tarot__number"></span>
+            <span class="tarot__illustration" aria-hidden="true">
+              <span class="tarot__halo"></span>
+              <span class="tarot__symbol"></span>
+            </span>
+            <span class="tarot__name-ja"></span>
+            <span class="tarot__name-en"></span>
+            <span class="tarot__orientation"></span>
+            <span class="tarot__tags"></span>
+          </span>
+        </span>
+      </button>
+      <p class="flip-hint"><span aria-hidden="true">↟</span> カードを選んでめくる</p>
+
+      <div class="interpretation" hidden>
+        <p class="interpretation__label">CHARACTER READING</p>
+        <ul class="interpretation__list"></ul>
+      </div>
+
+      <button class="reroll-button" type="button">
+        <span aria-hidden="true">↻</span> このカテゴリを再抽選
+      </button>
+    </article>
+  </template>
+</body>
+</html>
