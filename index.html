@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0b0a14">
-  <meta name="description" content="大アルカナ5枚から、漫画・小説・ゲーム・VRChatなどで使えるキャラクターの人格・生活・人間関係・傷を生成する創作支援ツールです。">
-  <title>人格タロット式キャラクターガチャ</title>
+  <meta name="description" content="5枚の大アルカナから、キャラクターの見た目・職業・暮らし・人間関係・傷や矛盾を生成するガチャツールです。">
+  <title>キャラクタリウム｜タロット式キャラクター生成ガチャ</title>
   <link rel="stylesheet" href="style.css">
   <script src="data.js" defer></script>
   <script src="app.js" defer></script>
@@ -15,20 +15,23 @@
   <div class="ambient ambient--two" aria-hidden="true"></div>
 
   <header class="site-header">
-    <a class="brand" href="#top" aria-label="人格タロット式キャラクターガチャ トップへ">
+    <a class="brand" href="#top" aria-label="キャラクタリウム トップへ">
       <span class="brand__mark" aria-hidden="true">✦</span>
-      <span>PERSONA TAROT</span>
+      <span>CHARACTERIUM</span>
     </a>
     <p class="version">Major Arcana / Ver.1</p>
   </header>
 
   <main id="top">
     <section class="hero" aria-labelledby="page-title">
-      <p class="eyebrow">CHARACTER CREATION PROMPT</p>
-      <h1 id="page-title">人格タロット式<br><span>キャラクターガチャ</span></h1>
+      <p class="eyebrow">TAROT CHARACTER GENERATOR</p>
+      <h1 id="page-title">
+        <span class="hero__title-main">キャラクタリウム</span>
+        <span class="hero__title-sub">タロット式キャラクター生成ガチャ</span>
+      </h1>
       <p class="hero__lead">
-        5枚の大アルカナが、外見だけでは見えない<br class="desktop-break">
-        その人の暮らし方、距離感、そして矛盾を映し出します。
+        5枚の大アルカナが、ひとりのキャラクターを形づくります。<br class="desktop-break">
+        外見、仕事、暮らし、人間関係、そして秘密まで。
       </p>
 
       <div class="deck-emblem" aria-hidden="true">
@@ -41,7 +44,7 @@
 
       <button class="draw-button" id="drawButton" type="button">
         <span aria-hidden="true">✦</span>
-        5枚のカードを引く
+        キャラクターをつくる
         <span aria-hidden="true">✦</span>
       </button>
       <p class="hero__hint">正位置・逆位置を含め、重複なしで5枚引きます</p>
@@ -78,7 +81,7 @@
     <section class="how-to" aria-labelledby="how-to-title">
       <div class="how-to__intro">
         <p class="eyebrow">HOW TO USE</p>
-        <h2 id="how-to-title">偶然から、人物を見つける</h2>
+        <h2 id="how-to-title">偶然から、キャラクターをつくる</h2>
       </div>
       <ol class="steps">
         <li><span>01</span><div><strong>カードを引く</strong><p>5つのカテゴリへ、大アルカナを1枚ずつ配ります。</p></div></li>

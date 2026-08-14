@@ -183,9 +183,15 @@ h1 {
   text-shadow: 0 6px 30px rgba(0, 0, 0, 0.3);
 }
 
-h1 span {
+.hero__title-main {
+  display: block;
+}
+
+.hero__title-sub {
+  display: block;
+  margin-top: 0.55em;
   color: var(--gold-bright);
-  font-size: 0.52em;
+  font-size: 0.3em;
   letter-spacing: 0.14em;
 }
 
@@ -881,8 +887,14 @@ h1 span {
     font-size: clamp(2.25rem, 12vw, 3.3rem);
   }
 
-  h1 span {
-    font-size: 0.46em;
+  h1 {
+    font-size: clamp(1.95rem, 9.3vw, 2.75rem);
+    letter-spacing: 0.04em;
+  }
+
+  .hero__title-sub {
+    font-size: 0.42em;
+    line-height: 1.55;
   }
 
   .desktop-break {

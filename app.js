@@ -399,7 +399,7 @@
 
   function buildCopyText() {
     const header = [
-      "人格タロット式キャラクターガチャ",
+      "キャラクタリウム｜タロット式キャラクター生成ガチャ",
       "================================"
     ];
     const sections = spreadState.map((result) => {
