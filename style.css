@@ -302,8 +302,7 @@ h1 {
   gap: 28px;
 }
 
-.section-heading h2,
-.how-to h2 {
+.section-heading h2 {
   margin: 0;
   font-family: var(--serif);
   font-size: clamp(1.8rem, 4vw, 3rem);
@@ -738,57 +737,6 @@ h1 {
   text-align: center;
 }
 
-.how-to {
-  width: min(1080px, calc(100% - 40px));
-  margin: 0 auto;
-  padding: 90px 0 110px;
-  display: grid;
-  grid-template-columns: 0.82fr 1.4fr;
-  gap: 80px;
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
-}
-
-.steps {
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 0;
-  list-style: none;
-}
-
-.steps li {
-  padding: 22px 0;
-  display: grid;
-  grid-template-columns: 52px 1fr;
-  gap: 18px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-}
-
-.steps li:first-child {
-  padding-top: 0;
-}
-
-.steps span {
-  color: var(--gold);
-  font-family: Georgia, serif;
-  font-size: 0.75rem;
-  letter-spacing: 0.12em;
-}
-
-.steps strong {
-  display: block;
-  margin-bottom: 5px;
-  font-family: var(--serif);
-  font-size: 1rem;
-  letter-spacing: 0.05em;
-}
-
-.steps p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.8rem;
-}
-
 .site-footer {
   width: min(980px, calc(100% - 40px));
   margin: 0 auto;
@@ -857,10 +805,6 @@ h1 {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .how-to {
-    grid-template-columns: 1fr;
-    gap: 40px;
-  }
 }
 
 @media (max-width: 640px) {
@@ -943,12 +887,6 @@ h1 {
 
   .action-button {
     min-height: 50px;
-  }
-
-  .how-to {
-    width: calc(100% - 28px);
-    padding: 70px 0 80px;
-    gap: 32px;
   }
 
   .site-footer {
