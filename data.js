@@ -36,7 +36,7 @@ const makeExtraDetail = (likes, dislikes, background, connections, injury, scar,
 
 const TAROT_CATEGORIES = [
   { id: "appearance", index: "I", name: "見た目", subtitle: "外見・第一印象", pick: 6 },
-  { id: "occupation", index: "II", name: "職業", subtitle: "仕事・生活基盤", pick: 5 },
+  { id: "occupation", index: "II", name: "職業・立場", subtitle: "仕事・学校・生活基盤", pick: 5 },
   { id: "personality", index: "III", name: "人格・生活・価値観", subtitle: "日常・選択の基準", pick: 6 },
   { id: "relationships", index: "IV", name: "人間関係", subtitle: "距離感・信頼", pick: 4 },
   { id: "wounds", index: "V", name: "傷・矛盾", subtitle: "隠れた弱さ・裏返し", pick: 6 }
