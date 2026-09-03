@@ -4,11 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0b0a14">
-  <meta name="description" content="5枚の大アルカナから、キャラクターの見た目・立場・暮らし・人間関係・傷や矛盾を生成するガチャツールです。">
+  <meta name="description" content="5枚の大アルカナで人物像を、小アルカナで名前のヒントを生成するキャラクターガチャです。">
   <title>キャラクタリウム｜タロット式キャラクター生成ガチャ</title>
   <link rel="stylesheet" href="style.css">
   <script src="data.js" defer></script>
   <script src="constraints-data.js" defer></script>
+  <script src="minor-arcana-data.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -20,7 +21,7 @@
       <span class="brand__mark" aria-hidden="true">✦</span>
       <span>CHARACTERIUM</span>
     </a>
-    <p class="version">Major Arcana / Ver.1</p>
+    <p class="version">Major + Minor Arcana / Ver.1</p>
   </header>
 
   <main id="top">
@@ -31,8 +32,8 @@
         <span class="hero__title-sub">タロット式キャラクター生成ガチャ</span>
       </h1>
       <p class="hero__lead">
-        5枚の大アルカナが、ひとりのキャラクターを形づくります。<br class="desktop-break">
-        外見、仕事、暮らし、人間関係、そして秘密まで。
+        5枚の大アルカナが人物像を、小アルカナが名前のきっかけを示します。<br class="desktop-break">
+        外見、仕事、暮らし、人間関係、秘密、そして名前まで。
       </p>
 
       <div class="deck-emblem" aria-hidden="true">
@@ -87,14 +88,14 @@
         キャラクターをつくる
         <span aria-hidden="true">✦</span>
       </button>
-      <p class="hero__hint">正位置・逆位置を含め、重複なしで5枚引きます</p>
+      <p class="hero__hint">大アルカナ5枚と、名前の小アルカナ1枚を引きます</p>
     </section>
 
     <section class="reading" id="reading" aria-labelledby="reading-title" hidden>
       <div class="section-heading">
         <div>
           <p class="eyebrow">YOUR CHARACTER</p>
-          <h2 id="reading-title">5つの側面をめくる</h2>
+          <h2 id="reading-title">6枚のカードをめくる</h2>
         </div>
         <p class="section-heading__guide">カードを選ぶと、人物像が明らかになります。</p>
       </div>
@@ -106,6 +107,67 @@
       </aside>
 
       <div class="spread" id="spread" aria-live="polite"></div>
+
+      <article class="name-arcana" id="nameArcana" aria-labelledby="nameArcanaTitle">
+        <div class="name-arcana__heading">
+          <div>
+            <p class="result-card__index">VI / NAME INSPIRATION</p>
+            <h3 class="result-card__category" id="nameArcanaTitle">名前の小アルカナ</h3>
+          </div>
+          <button class="lock-button" id="nameLockButton" type="button" aria-pressed="false">
+            <span class="lock-button__icon" aria-hidden="true">◇</span>
+            <span class="lock-button__label">固定</span>
+          </button>
+        </div>
+
+        <div class="name-arcana__body">
+          <div class="name-arcana__card-column">
+            <button class="tarot name-tarot" id="nameTarotButton" type="button" aria-expanded="false">
+              <span class="tarot__inner" aria-hidden="true">
+                <span class="tarot__back" aria-hidden="true">
+                  <span class="tarot__back-frame">
+                    <span class="tarot__stars">✦　·　✧</span>
+                    <span class="tarot__sigil">✧</span>
+                    <span class="tarot__stars tarot__stars--bottom">✧　·　✦</span>
+                  </span>
+                </span>
+                <span class="tarot__front">
+                  <span class="tarot__number" id="nameTarotNumber"></span>
+                  <span class="tarot__illustration" aria-hidden="true">
+                    <span class="tarot__halo"></span>
+                    <span class="tarot__symbol" id="nameTarotSymbol"></span>
+                  </span>
+                  <span class="tarot__name-ja" id="nameTarotNameJa"></span>
+                  <span class="tarot__name-en" id="nameTarotNameEn"></span>
+                  <span class="tarot__orientation" id="nameTarotOrientation"></span>
+                  <span class="tarot__tags" id="nameTarotTags"></span>
+                </span>
+              </span>
+            </button>
+            <p class="flip-hint"><span aria-hidden="true">↟</span> カードを選んでめくる</p>
+          </div>
+
+          <div class="name-reading" id="nameInterpretation" hidden>
+            <p class="interpretation__label">NAME READING</p>
+            <p class="name-reading__direction" id="nameDirection"></p>
+
+            <div class="name-reading__group">
+              <p class="name-reading__label">日本名の例</p>
+              <ul class="name-candidates" id="japaneseNameCandidates"></ul>
+            </div>
+            <div class="name-reading__group">
+              <p class="name-reading__label">海外名の例</p>
+              <ul class="name-candidates" id="internationalNameCandidates"></ul>
+            </div>
+            <p class="name-reading__motifs"><span>モチーフ</span><span id="nameMotifs"></span></p>
+            <p class="name-reading__note">候補は象徴・響き・語源からの連想です。表記や読み、文化圏は自由に調整してください。</p>
+          </div>
+        </div>
+
+        <button class="reroll-button name-reroll-button" id="rerollNameButton" type="button">
+          <span aria-hidden="true">↻</span> 名前のカードを再抽選
+        </button>
+      </article>
 
       <div class="toolbar" aria-label="全体操作">
         <button class="action-button action-button--primary" id="rerollAllButton" type="button">
@@ -121,7 +183,7 @@
           <span aria-hidden="true">▣</span> 結果全文をコピー
         </button>
       </div>
-      <p class="toolbar__note">「全部再抽選」は固定を解除します。「未固定だけ再抽選」は固定した結果を残します。</p>
+      <p class="toolbar__note">「全部再抽選」は6枚すべての固定を解除します。「未固定だけ再抽選」は固定した結果を残します。</p>
     </section>
 
   </main>
