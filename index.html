@@ -4,10 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0b0a14">
-  <meta name="description" content="5枚の大アルカナから、キャラクターの見た目・職業・暮らし・人間関係・傷や矛盾を生成するガチャツールです。">
+  <meta name="description" content="5枚の大アルカナから、キャラクターの見た目・立場・暮らし・人間関係・傷や矛盾を生成するガチャツールです。">
   <title>キャラクタリウム｜タロット式キャラクター生成ガチャ</title>
   <link rel="stylesheet" href="style.css">
   <script src="data.js" defer></script>
+  <script src="constraints-data.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -42,6 +43,45 @@
         <span class="deck-emblem__spark deck-emblem__spark--three">✧</span>
       </div>
 
+      <details class="constraints-panel" id="constraintsPanel">
+        <summary>
+          <span class="constraints-panel__symbol" aria-hidden="true">◇</span>
+          <span>決まっている設定を追加</span>
+          <span class="constraints-panel__optional" id="constraintsCount">任意</span>
+        </summary>
+        <div class="constraints-panel__body">
+          <p class="constraints-panel__guide">
+            空欄はおまかせ。入力した設定は、カードを引き直しても変わりません。
+          </p>
+          <div class="constraints-grid">
+            <label class="constraint-field">
+              <span>舞台・時代</span>
+              <input id="constraintSetting" type="text" maxlength="40" placeholder="例：現代日本" autocomplete="off">
+            </label>
+            <label class="constraint-field">
+              <span>出身・文化圏</span>
+              <input id="constraintOrigin" type="text" maxlength="40" placeholder="例：日本" autocomplete="off">
+            </label>
+            <label class="constraint-field">
+              <span>年齢</span>
+              <span class="constraint-field__age">
+                <input id="constraintAge" type="number" min="0" max="120" inputmode="numeric" placeholder="例：10" aria-label="年齢">
+                <span>歳</span>
+              </span>
+            </label>
+            <label class="constraint-field">
+              <span>性別・ジェンダー</span>
+              <input id="constraintGender" type="text" maxlength="40" placeholder="例：男子" autocomplete="off">
+            </label>
+            <label class="constraint-field constraint-field--wide">
+              <span>職業・立場</span>
+              <input id="constraintRole" type="text" maxlength="60" placeholder="例：小学生" autocomplete="off">
+            </label>
+          </div>
+          <button class="constraints-clear" id="clearConstraintsButton" type="button">入力をクリア</button>
+        </div>
+      </details>
+
       <button class="draw-button" id="drawButton" type="button">
         <span aria-hidden="true">✦</span>
         キャラクターをつくる
@@ -58,6 +98,12 @@
         </div>
         <p class="section-heading__guide">カードを選ぶと、人物像が明らかになります。</p>
       </div>
+
+      <aside class="active-constraints" id="activeConstraints" aria-label="今回の決まっている設定" hidden>
+        <p class="active-constraints__label">FIXED PROFILE</p>
+        <dl id="activeConstraintsList"></dl>
+        <p class="active-constraints__note">この設定は、カードを再抽選しても維持されます。</p>
+      </aside>
 
       <div class="spread" id="spread" aria-live="polite"></div>
 

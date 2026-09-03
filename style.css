@@ -48,7 +48,9 @@ button {
 }
 
 button:focus-visible,
-a:focus-visible {
+a:focus-visible,
+summary:focus-visible,
+input:focus-visible {
   outline: 2px solid var(--gold-bright);
   outline-offset: 4px;
 }
@@ -249,6 +251,135 @@ h1 {
 .deck-emblem__spark--two { right: 0; bottom: 38px; }
 .deck-emblem__spark--three { bottom: 1px; left: 25px; }
 
+.constraints-panel {
+  width: min(680px, 92vw);
+  margin: 0 0 24px;
+  color: var(--ink);
+  border: 1px solid rgba(217, 183, 104, 0.2);
+  background: rgba(15, 12, 27, 0.72);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.18);
+  text-align: left;
+}
+
+.constraints-panel summary {
+  min-height: 52px;
+  padding: 13px 18px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  cursor: pointer;
+  color: var(--gold-bright);
+  font-family: var(--serif);
+  font-size: 0.88rem;
+  letter-spacing: 0.08em;
+  list-style: none;
+  user-select: none;
+}
+
+.constraints-panel summary::-webkit-details-marker {
+  display: none;
+}
+
+.constraints-panel__symbol {
+  color: var(--gold);
+  transition: transform 180ms ease;
+}
+
+.constraints-panel[open] .constraints-panel__symbol {
+  transform: rotate(45deg);
+}
+
+.constraints-panel__optional {
+  margin-left: auto;
+  padding: 2px 8px;
+  color: var(--faint);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: var(--sans);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+}
+
+.constraints-panel__body {
+  padding: 20px;
+  border-top: 1px solid rgba(217, 183, 104, 0.14);
+}
+
+.constraints-panel__guide {
+  margin: 0 0 16px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.65;
+}
+
+.constraints-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+}
+
+.constraint-field {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+}
+
+.constraint-field--wide {
+  grid-column: 1 / -1;
+}
+
+.constraint-field input {
+  width: 100%;
+  height: 44px;
+  padding: 9px 11px;
+  color: var(--ink);
+  border: 1px solid rgba(217, 183, 104, 0.22);
+  border-radius: 2px;
+  background: rgba(8, 7, 16, 0.82);
+  font: inherit;
+  font-size: 0.84rem;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+
+.constraint-field input:hover {
+  border-color: rgba(217, 183, 104, 0.4);
+}
+
+.constraint-field input::placeholder {
+  color: #5f596b;
+}
+
+.constraint-field__age {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.constraint-field__age > span {
+  color: var(--muted);
+}
+
+.constraints-clear {
+  margin: 16px 0 0 auto;
+  padding: 7px 2px;
+  display: block;
+  color: var(--faint);
+  border: 0;
+  border-bottom: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+}
+
+.constraints-clear:hover {
+  color: var(--gold-bright);
+  border-bottom-color: var(--line);
+}
+
 .draw-button {
   min-width: min(360px, 88vw);
   min-height: 64px;
@@ -314,6 +445,54 @@ h1 {
   margin: 0 0 4px;
   color: var(--muted);
   font-size: 0.84rem;
+}
+
+.active-constraints {
+  margin: -12px 0 32px;
+  padding: 18px 20px;
+  border: 1px solid rgba(217, 183, 104, 0.2);
+  background:
+    linear-gradient(135deg, rgba(217, 183, 104, 0.06), transparent 55%),
+    rgba(15, 12, 27, 0.64);
+}
+
+.active-constraints__label {
+  margin: 0 0 11px;
+  color: var(--gold);
+  font-family: Georgia, serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.24em;
+}
+
+.active-constraints dl {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+}
+
+.active-constraints dl > div {
+  display: flex;
+  gap: 7px;
+  align-items: baseline;
+}
+
+.active-constraints dt {
+  color: var(--faint);
+  font-size: 0.69rem;
+}
+
+.active-constraints dd {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 0.86rem;
+}
+
+.active-constraints__note {
+  margin: 10px 0 0;
+  color: var(--faint);
+  font-size: 0.65rem;
 }
 
 .spread {
@@ -849,6 +1028,22 @@ h1 {
     margin-top: 30px;
   }
 
+  .constraints-panel {
+    width: 100%;
+  }
+
+  .constraints-panel__body {
+    padding: 17px 15px;
+  }
+
+  .constraints-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .constraint-field--wide {
+    grid-column: auto;
+  }
+
   .reading {
     width: calc(100% - 28px);
     padding: 70px 0 78px;
@@ -861,6 +1056,22 @@ h1 {
 
   .section-heading__guide {
     margin-top: 10px;
+  }
+
+  .active-constraints {
+    margin-top: -6px;
+    padding: 16px;
+  }
+
+  .active-constraints dl {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 16px;
+  }
+
+  .active-constraints dl > div {
+    display: grid;
+    gap: 1px;
   }
 
   .spread {
