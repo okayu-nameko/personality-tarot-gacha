@@ -27,6 +27,7 @@
     rerollUnlockedButton: document.querySelector("#rerollUnlockedButton"),
     revealAllButton: document.querySelector("#revealAllButton"),
     copyButton: document.querySelector("#copyButton"),
+    shareImageButton: document.querySelector("#shareImageButton"),
     cardTemplate: document.querySelector("#cardTemplate"),
     toast: document.querySelector("#toast"),
     constraintsCount: document.querySelector("#constraintsCount"),
@@ -60,6 +61,7 @@
   let toastTimer = 0;
   let activeConstraints = {};
   let nameState = null;
+  let shareImageInProgress = false;
 
   const constraintFields = [
     { key: "setting", label: "舞台・時代", element: elements.constraintSetting },
@@ -877,6 +879,323 @@
     }
   }
 
+  const SHARE_PAGE_URL = "https://okayu-nameko.github.io/personality-tarot-gacha/";
+  const SHARE_FONTS = Object.freeze({
+    brand: '600 20px Georgia, "Times New Roman", serif',
+    headline: '700 54px "Yu Mincho", "Hiragino Mincho ProN", serif',
+    subtitle: '400 23px "Yu Gothic", "Hiragino Kaku Gothic ProN", sans-serif',
+    profileLabel: '600 17px Georgia, "Times New Roman", serif',
+    profile: '400 20px "Yu Gothic", "Hiragino Kaku Gothic ProN", sans-serif',
+    cardTitle: '700 29px "Yu Mincho", "Hiragino Mincho ProN", serif',
+    cardMeta: '500 19px "Yu Gothic", "Hiragino Kaku Gothic ProN", sans-serif',
+    cardTags: '400 17px "Yu Gothic", "Hiragino Kaku Gothic ProN", sans-serif',
+    body: '400 21px "Yu Gothic", "Hiragino Kaku Gothic ProN", sans-serif',
+    footer: '400 16px "Yu Gothic", "Hiragino Kaku Gothic ProN", sans-serif'
+  });
+
+  function getShareSummaryLines(result) {
+    const lastIndex = result.lines.length - 1;
+    const indexesByCategory = {
+      appearance: [0, 2, 4],
+      occupation: [0, 1, 4],
+      personality: [0, 1, 2, 3],
+      relationships: [0, 1, 2, 3],
+      wounds: [0, 1, lastIndex]
+    };
+    const indexes = indexesByCategory[result.categoryId] || [0, 1, 2];
+    return unique(indexes.map((index) => result.lines[index]).filter(Boolean));
+  }
+
+  function buildShareSections() {
+    const majorSections = spreadState.map((result) => {
+      const category = getCategory(result.categoryId);
+      const card = getCard(result.cardNumber);
+      const reading = card[result.orientation];
+      return {
+        title: `${category.index}. ${category.name}`,
+        meta: `${card.numeral} ${card.nameJa} ／ ${orientationLabel(result)}`,
+        tags: reading.tags.join("・"),
+        lines: getShareSummaryLines(result),
+        accent: false
+      };
+    });
+    const nameCard = getMinorCard(nameState.cardId);
+    const nameReading = nameCard[nameState.orientation];
+    const nameSection = {
+      title: "VI. 名前の小アルカナ",
+      meta: `${nameCard.nameJa} ／ ${orientationLabel(nameState)}`,
+      tags: nameReading.tags.join("・"),
+      lines: [
+        nameReading.direction,
+        `日本名：${nameState.japaneseNames.join("／")}`,
+        `海外名：${nameState.internationalNames.join("／")}`,
+        `モチーフ：${nameReading.motifs.join("・")}`
+      ],
+      accent: true
+    };
+    return [...majorSections, nameSection];
+  }
+
+  function wrapCanvasText(context, text, maxWidth, font) {
+    context.font = font;
+    const lines = [];
+    let current = "";
+
+    [...String(text)].forEach((character) => {
+      const candidate = current + character;
+      if (current && context.measureText(candidate).width > maxWidth) {
+        lines.push(current);
+        current = character;
+      } else {
+        current = candidate;
+      }
+    });
+
+    if (current) lines.push(current);
+    return lines.length > 0 ? lines : [""];
+  }
+
+  function prepareShareCard(context, section, width) {
+    const contentWidth = width - 52;
+    const titleLines = wrapCanvasText(context, section.title, contentWidth, SHARE_FONTS.cardTitle);
+    const metaLines = wrapCanvasText(context, section.meta, contentWidth, SHARE_FONTS.cardMeta);
+    const tagLines = wrapCanvasText(context, section.tags, contentWidth, SHARE_FONTS.cardTags);
+    const bodyGroups = section.lines.map((line) => (
+      wrapCanvasText(context, line, contentWidth - 25, SHARE_FONTS.body)
+    ));
+    const height = 48
+      + titleLines.length * 38
+      + 5
+      + metaLines.length * 28
+      + 7
+      + tagLines.length * 25
+      + 19
+      + bodyGroups.reduce((total, lines) => total + lines.length * 32 + 10, 0)
+      + 18;
+
+    return { ...section, titleLines, metaLines, tagLines, bodyGroups, height };
+  }
+
+  function roundedRectPath(context, x, y, width, height, radius) {
+    const corner = Math.min(radius, width / 2, height / 2);
+    context.beginPath();
+    context.moveTo(x + corner, y);
+    context.lineTo(x + width - corner, y);
+    context.quadraticCurveTo(x + width, y, x + width, y + corner);
+    context.lineTo(x + width, y + height - corner);
+    context.quadraticCurveTo(x + width, y + height, x + width - corner, y + height);
+    context.lineTo(x + corner, y + height);
+    context.quadraticCurveTo(x, y + height, x, y + height - corner);
+    context.lineTo(x, y + corner);
+    context.quadraticCurveTo(x, y, x + corner, y);
+    context.closePath();
+  }
+
+  function drawCanvasLines(context, lines, x, y, lineHeight) {
+    lines.forEach((line, index) => context.fillText(line, x, y + index * lineHeight));
+    return y + lines.length * lineHeight;
+  }
+
+  function drawShareCard(context, card, x, y, width) {
+    roundedRectPath(context, x, y, width, card.height, 10);
+    context.fillStyle = card.accent ? "rgba(54, 39, 73, 0.94)" : "rgba(23, 19, 41, 0.94)";
+    context.fill();
+    context.strokeStyle = card.accent ? "rgba(240, 213, 143, 0.7)" : "rgba(217, 183, 104, 0.35)";
+    context.lineWidth = card.accent ? 2 : 1;
+    context.stroke();
+
+    let textY = y + 48;
+    context.fillStyle = "#f0d58f";
+    context.font = SHARE_FONTS.cardTitle;
+    textY = drawCanvasLines(context, card.titleLines, x + 26, textY, 38) + 5;
+
+    context.fillStyle = "#d9d1df";
+    context.font = SHARE_FONTS.cardMeta;
+    textY = drawCanvasLines(context, card.metaLines, x + 26, textY, 28) + 7;
+
+    context.fillStyle = "#aa94c8";
+    context.font = SHARE_FONTS.cardTags;
+    textY = drawCanvasLines(context, card.tagLines, x + 26, textY, 25) + 19;
+
+    context.font = SHARE_FONTS.body;
+    card.bodyGroups.forEach((lines) => {
+      context.fillStyle = "#9a7533";
+      context.font = SHARE_FONTS.cardTags;
+      context.fillText("◆", x + 27, textY - 1);
+      context.fillStyle = "#eee8f0";
+      context.font = SHARE_FONTS.body;
+      textY = drawCanvasLines(context, lines, x + 50, textY, 32) + 10;
+    });
+  }
+
+  function createShareCanvas() {
+    const canvas = document.createElement("canvas");
+    const width = 1200;
+    const outerPadding = 70;
+    const columnGap = 28;
+    const cardGap = 24;
+    const cardWidth = (width - outerPadding * 2 - columnGap) / 2;
+    canvas.width = width;
+    canvas.height = 100;
+    let context = canvas.getContext("2d");
+
+    const profileText = getConstraintEntries()
+      .map((entry) => `${entry.label}：${entry.value}`)
+      .join("　／　");
+    const profileLines = profileText
+      ? wrapCanvasText(context, profileText, width - outerPadding * 2, SHARE_FONTS.profile)
+      : [];
+    const cardsTop = 230 + profileLines.length * 29;
+    const cards = buildShareSections().map((section) => prepareShareCard(context, section, cardWidth));
+    const columns = [
+      [cards[0], cards[2], cards[4]],
+      [cards[1], cards[3], cards[5]]
+    ];
+    const columnHeights = columns.map((column) => (
+      column.reduce((total, card) => total + card.height, 0) + cardGap * (column.length - 1)
+    ));
+    const height = Math.max(1500, Math.ceil(cardsTop + Math.max(...columnHeights) + 125));
+    canvas.height = height;
+    context = canvas.getContext("2d");
+
+    context.fillStyle = "#090812";
+    context.fillRect(0, 0, width, height);
+    const glow = context.createRadialGradient(170, 120, 0, 170, 120, 720);
+    glow.addColorStop(0, "rgba(102, 70, 145, 0.3)");
+    glow.addColorStop(1, "rgba(9, 8, 18, 0)");
+    context.fillStyle = glow;
+    context.fillRect(0, 0, width, height);
+
+    context.strokeStyle = "rgba(217, 183, 104, 0.42)";
+    context.lineWidth = 2;
+    context.strokeRect(28, 28, width - 56, height - 56);
+    context.strokeStyle = "rgba(217, 183, 104, 0.13)";
+    context.lineWidth = 1;
+    context.strokeRect(40, 40, width - 80, height - 80);
+
+    context.fillStyle = "#d9b768";
+    context.font = SHARE_FONTS.brand;
+    context.fillText("✦  CHARACTERIUM / TAROT CHARACTER GENERATOR", outerPadding, 80);
+    context.fillStyle = "#f4efe5";
+    context.font = SHARE_FONTS.headline;
+    context.fillText("こんなのできました！", outerPadding, 148);
+    context.fillStyle = "#aaa3b8";
+    context.font = SHARE_FONTS.subtitle;
+    context.fillText("5枚の大アルカナと、名前を導く1枚の小アルカナ", outerPadding, 190);
+
+    if (profileLines.length > 0) {
+      context.fillStyle = "#d9b768";
+      context.font = SHARE_FONTS.profileLabel;
+      context.fillText("FIXED PROFILE", outerPadding, 226);
+      context.fillStyle = "#d7d0dc";
+      context.font = SHARE_FONTS.profile;
+      drawCanvasLines(context, profileLines, outerPadding + 160, 226, 29);
+    }
+
+    columns.forEach((column, columnIndex) => {
+      const x = outerPadding + columnIndex * (cardWidth + columnGap);
+      let y = cardsTop;
+      column.forEach((card) => {
+        drawShareCard(context, card, x, y, cardWidth);
+        y += card.height + cardGap;
+      });
+    });
+
+    context.fillStyle = "#857d90";
+    context.font = SHARE_FONTS.footer;
+    context.fillText("気に入った部分だけ、自由に採用・変更してください。", outerPadding, height - 70);
+    context.textAlign = "right";
+    context.fillStyle = "#bda76e";
+    context.fillText(SHARE_PAGE_URL.replace(/^https?:\/\//, ""), width - outerPadding, height - 70);
+    context.textAlign = "left";
+
+    return canvas;
+  }
+
+  function canvasToBlob(canvas) {
+    return new Promise((resolve, reject) => {
+      canvas.toBlob((blob) => {
+        if (blob) resolve(blob);
+        else reject(new Error("画像データを作成できませんでした。"));
+      }, "image/png");
+    });
+  }
+
+  function makeShareImageFilename() {
+    const date = new Date();
+    const parts = [
+      date.getFullYear(),
+      String(date.getMonth() + 1).padStart(2, "0"),
+      String(date.getDate()).padStart(2, "0"),
+      "-",
+      String(date.getHours()).padStart(2, "0"),
+      String(date.getMinutes()).padStart(2, "0")
+    ];
+    return `characterium-${parts.join("")}.png`;
+  }
+
+  function downloadShareImage(blob, filename) {
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.download = filename;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  async function shareResultsAsImage() {
+    if (shareImageInProgress || spreadState.length === 0 || !nameState) return;
+
+    shareImageInProgress = true;
+    const originalContent = elements.shareImageButton.innerHTML;
+    elements.shareImageButton.textContent = "画像を作成中…";
+    updateToolbar();
+
+    try {
+      const canvas = createShareCanvas();
+      const blob = await canvasToBlob(canvas);
+      const filename = makeShareImageFilename();
+      let shared = false;
+
+      if (navigator.share && navigator.canShare && typeof File !== "undefined") {
+        const file = new File([blob], filename, { type: "image/png" });
+        try {
+          if (navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              title: "キャラクタリウム",
+              text: `こんなのできました！\n${SHARE_PAGE_URL}`,
+              files: [file]
+            });
+            shared = true;
+          }
+        } catch (shareError) {
+          if (shareError?.name === "AbortError") throw shareError;
+          console.warn("共有メニューを開けなかったため、画像を保存します。", shareError);
+        }
+      }
+
+      if (shared) {
+        showToast("共有メニューを開きました");
+      } else {
+        downloadShareImage(blob, filename);
+        showToast("共有用の画像を保存しました");
+      }
+    } catch (error) {
+      if (error?.name === "AbortError") {
+        showToast("画像の共有をキャンセルしました");
+      } else {
+        console.error("共有用画像の作成に失敗しました。", error);
+        showToast("共有用画像を作成できませんでした");
+      }
+    } finally {
+      shareImageInProgress = false;
+      elements.shareImageButton.innerHTML = originalContent;
+      updateToolbar();
+    }
+  }
+
   function fallbackCopy(text) {
     const textarea = document.createElement("textarea");
     textarea.value = text;
@@ -904,6 +1223,7 @@
     elements.rerollUnlockedButton.disabled = !hasResults || allLocked;
     elements.revealAllButton.disabled = !hasResults || allRevealed;
     elements.copyButton.disabled = !hasResults;
+    elements.shareImageButton.disabled = !hasResults || shareImageInProgress;
   }
 
   function showToast(message) {
@@ -931,6 +1251,7 @@
   elements.rerollUnlockedButton.addEventListener("click", rerollUnlocked);
   elements.revealAllButton.addEventListener("click", revealAll);
   elements.copyButton.addEventListener("click", copyResults);
+  elements.shareImageButton.addEventListener("click", shareResultsAsImage);
   elements.nameTarotButton.addEventListener("click", revealNameArcana);
   elements.nameLockButton.addEventListener("click", toggleNameLock);
   elements.rerollNameButton.addEventListener("click", rerollNameArcana);

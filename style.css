@@ -1001,7 +1001,7 @@ h1 {
   margin-top: 34px;
   padding: 22px;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 12px;
   border: 1px solid rgba(217, 183, 104, 0.15);
   background: rgba(10, 8, 19, 0.7);
@@ -1114,6 +1114,10 @@ h1 {
 
   .toolbar {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .action-button--share {
+    grid-column: 1 / -1;
   }
 
 }
@@ -1248,6 +1252,10 @@ h1 {
     margin-top: 22px;
     padding: 14px;
     grid-template-columns: 1fr;
+  }
+
+  .action-button--share {
+    grid-column: auto;
   }
 
   .action-button {
